@@ -26,7 +26,7 @@ psycopg2-binary = "^2.9.7"
 pydantic = "^2.0.0"
 httpx = "^0.28.1"
 PyJWT = "*"
-
+nemoguardrails = "*"
 
 
 [tool.poetry.group.dev.dependencies]
