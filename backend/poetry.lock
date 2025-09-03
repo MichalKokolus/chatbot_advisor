@@ -790,6 +790,18 @@ files = [
 ]
 
 [[package]]
+name = "filetype"
+version = "1.2.0"
+description = "Infer file type and MIME type of any file/buffer. No external dependencies."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "filetype-1.2.0-py2.py3-none-any.whl", hash = "sha256:7ce71b6880181241cf7ac8697a2f1eb6a8bd9b429f7ad6d27b8db9ba5f1c2d25"},
+    {file = "filetype-1.2.0.tar.gz", hash = "sha256:66b56cd6474bf41d8c54660347d37afcc3f7d1970648de365c102ef77548aadb"},
+]
+
+[[package]]
 name = "flatbuffers"
 version = "25.2.10"
 description = "The FlatBuffers serialization format for Python"
@@ -1602,6 +1614,24 @@ pydantic = ">=2.7.4"
 PyYAML = ">=5.3"
 tenacity = ">=8.1.0,<8.4.0 || >8.4.0,<10.0.0"
 typing-extensions = ">=4.7"
+
+[[package]]
+name = "langchain-google-genai"
+version = "2.0.10"
+description = "An integration package connecting Google's genai package and LangChain"
+optional = false
+python-versions = "<4.0,>=3.9"
+groups = ["main"]
+files = [
+    {file = "langchain_google_genai-2.0.10-py3-none-any.whl", hash = "sha256:964a7542fd11fdec7592052b4eaef383227f7c4fa4d754a455e4bf0634f4ad28"},
+    {file = "langchain_google_genai-2.0.10.tar.gz", hash = "sha256:b51067b468853856f275bb7b1a85dbaf4467b59fe67e35fcd614fc0d744c810e"},
+]
+
+[package.dependencies]
+filetype = ">=1.2.0,<2.0.0"
+google-generativeai = ">=0.8.0,<0.9.0"
+langchain-core = ">=0.3.37,<0.4.0"
+pydantic = ">=2,<3"
 
 [[package]]
 name = "langchain-text-splitters"
@@ -4261,4 +4291,4 @@ cffi = ["cffi (>=1.17) ; python_version >= \"3.13\" and platform_python_implemen
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "3d7198b0c2ca9e66dd7da781c97fdb461e63507dc67f2c2b6a242ffe7978aae4"
+content-hash = "c4625d907090fd62e73f585d2e911f2f946c77fbda36c5cc20d1c49edf4c126f"
