@@ -1,0 +1,101 @@
+[tool.poetry]
+name = "advisor-backend"
+version = "0.1.0"
+description = "Backend for advisor chatbot/voice assistant"
+authors = ["kokolus.michal4@gmail.com"]
+packages = [
+    { include = "backend" }
+]
+
+[tool.coverage.run]
+omit = [
+    "*/conftest.py"
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+python-dotenv = "^1.0.0"
+fastapi = "0.109.0"
+uvicorn = "*"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+numpy = "*"
+google = "*"
+google-generativeai = "^0.8.4"
+psycopg2-binary = "^2.9.7"
+pydantic = "^2.0.0"
+httpx = "^0.28.1"
+PyJWT = "*"
+
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.11.2"
+click = "^8.1.7"
+pytest = "7.4.3"
+pytest-asyncio = "0.21.1"
+pytest-cov = "^6.0.0"
+ruff = "^0.1.14"
+pandas = "*"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+line-length = 88
+indent-width = 4
+
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+ignore = []
+
+fixable = ["ALL"]
+unfixable = []
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "double"
+
+indent-style = "space"
+
+skip-magic-trailing-comma = false
+
+line-ending = "auto"
+
+docstring-code-format = false
+
+docstring-code-line-length = "dynamic"
