@@ -43,7 +43,7 @@ An AI-powered psychological advisor that provides empathetic support and practic
 
 1. **Clone the repository**
    ```bash
-   git clone (https://github.com/MichalKokolus/chatbot_advisor.git)
+   git clone https://github.com/MichalKokolus/chatbot_advisor.git
    cd chatbot_advisor
    ```
 
