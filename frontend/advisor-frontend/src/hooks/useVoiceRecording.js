@@ -21,7 +21,6 @@ const useVoiceRecording = () => {
     
     if (SpeechRecognition) {
       setIsSupported(true);
-      console.log('🎤 Web Speech API supported');
     } else {
       setIsSupported(false);
       setError('Speech recognition is not supported in this browser');
@@ -45,12 +44,9 @@ const useVoiceRecording = () => {
     recognition.onstart = () => {
       setIsListening(true);
       setError(null);
-      console.log('🎤 Voice recognition started');
     };
     
     recognition.onresult = (event) => {
-      console.log('🎤 Speech result event:', event.results.length, 'results');
-      
       let fullTranscript = '';
       let interimTranscript = '';
       
@@ -60,16 +56,13 @@ const useVoiceRecording = () => {
         
         if (event.results[i].isFinal) {
           fullTranscript += transcriptPart;
-          console.log('🎤 Final transcript part:', transcriptPart);
         } else {
           interimTranscript += transcriptPart;
-          console.log('🎤 Interim transcript part:', transcriptPart);
         }
       }
       
       const newTranscript = fullTranscript + interimTranscript;
       setTranscript(newTranscript);
-      console.log('🎤 Complete transcript:', newTranscript);
       
       // Set auto-stop timeout for silence detection
       if (isRecording && (fullTranscript || interimTranscript)) {
@@ -78,7 +71,6 @@ const useVoiceRecording = () => {
         }
         
         timeoutRef.current = setTimeout(() => {
-          console.log('🎤 Auto-stop timeout triggered after silence');
           if (isRecording) {
             stopRecording();
           }
@@ -87,12 +79,10 @@ const useVoiceRecording = () => {
     };
     
     recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error, event);
       setIsListening(false);
       setIsRecording(false);
       
       if (event.error === 'aborted') {
-        console.log('🎤 Recognition aborted - this is normal when stopping');
         return;
       }
       
@@ -119,7 +109,6 @@ const useVoiceRecording = () => {
     
     recognition.onend = () => {
       setIsListening(false);
-      console.log('🎤 Voice recognition ended');
     };
     
     return recognition;
@@ -132,8 +121,6 @@ const useVoiceRecording = () => {
     }
     
     if (!isRecording) {
-      console.log('🎤 Creating fresh recognition instance...');
-      
       // Create a completely fresh recognition instance
       const newRecognition = createRecognition();
       if (!newRecognition) {
@@ -143,16 +130,13 @@ const useVoiceRecording = () => {
       
       recognitionRef.current = newRecognition;
       
-      // Simple reset
       setTranscript('');
       setError(null);
       setIsRecording(true);
       
       try {
         recognitionRef.current.start();
-        console.log('🎤 Fresh recognition started successfully');
       } catch (err) {
-        console.error('Error starting recognition:', err);
         setError('Failed to start voice recording');
         setIsRecording(false);
       }
@@ -160,30 +144,22 @@ const useVoiceRecording = () => {
   }, [isSupported, isRecording, createRecognition]);
 
   const stopRecording = useCallback(() => {
-    console.log('🎤 Stop recording called');
-    
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
-        console.log('🎤 Recognition.stop() called');
       } catch (err) {
-        console.error('🎤 Error stopping recognition:', err);
+        // Ignore errors when stopping
       }
-      // Clear the reference to the old instance
       recognitionRef.current = null;
     }
     
-    // Clear states
     setIsRecording(false);
     setIsListening(false);
     
-    // Clear timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-    
-    console.log('🎤 Recording stopped, instance cleared');
   }, []);
 
   const clearTranscript = useCallback(() => {
@@ -194,8 +170,6 @@ const useVoiceRecording = () => {
   // Test microphone levels
   const testMicrophone = useCallback(async () => {
     try {
-      console.log('🎤 Testing microphone...');
-      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
@@ -231,15 +205,12 @@ const useVoiceRecording = () => {
           stream.getTracks().forEach(track => track.stop());
           audioContext.close();
           
-          console.log(`🎤 Microphone test complete. Max volume detected: ${maxVolume}`);
           if (maxVolume < 5) {
             setError('Microphone levels very low. Check if microphone is working or increase volume.');
           } else if (maxVolume < 15) {
-            console.log('🎤 Microphone detected but levels are low. Speech recognition may not work reliably.');
             setError('Microphone levels are low. Try speaking louder or increase microphone volume in Windows settings.');
           } else {
-            console.log('🎤 Microphone appears to be working correctly');
-            setError(null); // Clear any previous errors
+            setError(null);
           }
         }
       };
@@ -247,7 +218,6 @@ const useVoiceRecording = () => {
       checkLevels();
       
     } catch (err) {
-      console.error('🎤 Microphone test failed:', err);
       setError('Microphone test failed. Check microphone connection.');
     }
   }, []);
@@ -266,10 +236,8 @@ const useVoiceRecording = () => {
       // Stop the stream immediately (we just needed permission)
       stream.getTracks().forEach(track => track.stop());
       
-      console.log('✅ Microphone permission granted');
       return true;
     } catch (err) {
-      console.error('Microphone permission error:', err);
       
       let errorMessage = '';
       if (err.name === 'NotAllowedError') {
