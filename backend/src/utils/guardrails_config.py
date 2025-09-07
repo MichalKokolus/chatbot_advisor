@@ -14,8 +14,8 @@ def create_guardrails_config() -> str:
     yaml_config = """
 models:
   - type: main
-    engine: openai
-    model: gpt-3.5-turbo
+    engine: gemini
+    model: gemini-2.0-flash-exp
 
 instructions:
   - type: general
