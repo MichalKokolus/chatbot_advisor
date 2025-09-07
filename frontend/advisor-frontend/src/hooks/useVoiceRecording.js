@@ -21,140 +21,108 @@ const useVoiceRecording = () => {
     
     if (SpeechRecognition) {
       setIsSupported(true);
-      
-      // Initialize speech recognition
-      recognitionRef.current = new SpeechRecognition();
-      const recognition = recognitionRef.current;
-      
-      // Configure recognition for better sensitivity
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
-      recognition.maxAlternatives = 1;
-      
-      // Additional settings for better speech detection
-      // Note: Don't set grammars to null as it causes errors in Chrome
-      if ('serviceURI' in recognition) {
-        recognition.serviceURI = ''; // Use default service
-      }
-      
-      // Event handlers
-      recognition.onstart = () => {
-        setIsListening(true);
-        setError(null);
-        retryCountRef.current = 0; // Reset retry count on successful start
-        console.log('🎤 Voice recognition started');
-      };
-      
-      recognition.onresult = (event) => {
-        console.log('🎤 Speech result event:', event.results.length, 'results');
-        
-        let fullTranscript = '';
-        let interimTranscript = '';
-        
-        // Build complete transcript from all results
-        for (let i = 0; i < event.results.length; i++) {
-          const transcriptPart = event.results[i][0].transcript;
-          
-          if (event.results[i].isFinal) {
-            fullTranscript += transcriptPart;
-            console.log('🎤 Final transcript part:', transcriptPart);
-          } else {
-            interimTranscript += transcriptPart;
-            console.log('🎤 Interim transcript part:', transcriptPart);
-          }
-        }
-        
-        const newTranscript = fullTranscript + interimTranscript;
-        setTranscript(newTranscript);
-        console.log('🎤 Complete transcript:', newTranscript);
-        
-        // Set auto-stop timeout for silence detection (only reset on any speech activity)
-        if (isRecording && (fullTranscript || interimTranscript)) {
-          // Clear existing timeout
-          if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-          }
-          
-          // Set new timeout for silence detection
-          timeoutRef.current = setTimeout(() => {
-            console.log('🎤 Auto-stop timeout triggered after silence');
-            if (isRecording) {
-              stopRecording();
-            }
-          }, 3000); // 3 seconds of silence to auto-stop
-        }
-      };
-      
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error, event);
-        
-        let errorMessage = '';
-        switch(event.error) {
-          case 'network':
-            errorMessage = 'Network error. Please check your internet connection and try again.';
-            break;
-          case 'not-allowed':
-            errorMessage = 'Microphone access denied. Please allow microphone permissions and try again.';
-            break;
-          case 'no-speech':
-            errorMessage = 'No speech detected. Try speaking louder, getting closer to the microphone, or check your microphone settings.';
-            break;
-          case 'audio-capture':
-            errorMessage = 'Audio capture failed. Please check your microphone and try again.';
-            break;
-          case 'service-not-allowed':
-            errorMessage = 'Speech recognition service not allowed. Try using HTTPS or a different browser.';
-            break;
-          case 'aborted':
-            console.log('🎤 Speech recognition was aborted (likely due to quick stop/start)');
-            setIsListening(false);
-            
-            // If user was trying to record, try to restart once
-            if (isRecording && retryCountRef.current < 1) {
-              retryCountRef.current++;
-              console.log('🎤 Retrying speech recognition after abort...');
-              setTimeout(() => {
-                if (isRecording && recognitionRef.current) {
-                  try {
-                    recognitionRef.current.start();
-                  } catch (err) {
-                    console.error('🎤 Retry failed:', err);
-                    setIsRecording(false);
-                  }
-                }
-              }, 500);
-              return;
-            }
-            
-            setIsRecording(false);
-            retryCountRef.current = 0;
-            return; // Exit early without setting error
-          default:
-            errorMessage = `Speech recognition error: ${event.error}. Try refreshing the page.`;
-        }
-        
-        setError(errorMessage);
-        setIsListening(false);
-        setIsRecording(false);
-      };
-      
-      recognition.onend = () => {
-        setIsListening(false);
-        console.log('🎤 Voice recognition ended');
-      };
-      
+      console.log('🎤 Web Speech API supported');
     } else {
       setIsSupported(false);
       setError('Speech recognition is not supported in this browser');
     }
+  }, []);
+
+  // Create a fresh recognition instance each time
+  const createRecognition = useCallback(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return null;
+
+    const recognition = new SpeechRecognition();
+      
+    // Configure recognition for better sensitivity
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    recognition.maxAlternatives = 1;
     
-    // Cleanup
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+    // Event handlers
+    recognition.onstart = () => {
+      setIsListening(true);
+      setError(null);
+      console.log('🎤 Voice recognition started');
+    };
+    
+    recognition.onresult = (event) => {
+      console.log('🎤 Speech result event:', event.results.length, 'results');
+      
+      let fullTranscript = '';
+      let interimTranscript = '';
+      
+      // Build complete transcript from all results
+      for (let i = 0; i < event.results.length; i++) {
+        const transcriptPart = event.results[i][0].transcript;
+        
+        if (event.results[i].isFinal) {
+          fullTranscript += transcriptPart;
+          console.log('🎤 Final transcript part:', transcriptPart);
+        } else {
+          interimTranscript += transcriptPart;
+          console.log('🎤 Interim transcript part:', transcriptPart);
+        }
+      }
+      
+      const newTranscript = fullTranscript + interimTranscript;
+      setTranscript(newTranscript);
+      console.log('🎤 Complete transcript:', newTranscript);
+      
+      // Set auto-stop timeout for silence detection
+      if (isRecording && (fullTranscript || interimTranscript)) {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        
+        timeoutRef.current = setTimeout(() => {
+          console.log('🎤 Auto-stop timeout triggered after silence');
+          if (isRecording) {
+            stopRecording();
+          }
+        }, 3000);
       }
     };
+    
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error, event);
+      setIsListening(false);
+      setIsRecording(false);
+      
+      if (event.error === 'aborted') {
+        console.log('🎤 Recognition aborted - this is normal when stopping');
+        return;
+      }
+      
+      let errorMessage = '';
+      switch(event.error) {
+        case 'network':
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+          break;
+        case 'not-allowed':
+          errorMessage = 'Microphone access denied. Please allow microphone permissions and try again.';
+          break;
+        case 'no-speech':
+          errorMessage = 'No speech detected. Try speaking louder or closer to the microphone.';
+          break;
+        case 'audio-capture':
+          errorMessage = 'Audio capture failed. Please check your microphone and try again.';
+          break;
+        default:
+          errorMessage = `Speech recognition error: ${event.error}`;
+      }
+      
+      setError(errorMessage);
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+      console.log('🎤 Voice recognition ended');
+    };
+    
+    return recognition;
   }, [isRecording]);
 
   const startRecording = useCallback(() => {
@@ -163,8 +131,17 @@ const useVoiceRecording = () => {
       return;
     }
     
-    if (recognitionRef.current && !isRecording) {
-      console.log('🎤 SIMPLE start recording...');
+    if (!isRecording) {
+      console.log('🎤 Creating fresh recognition instance...');
+      
+      // Create a completely fresh recognition instance
+      const newRecognition = createRecognition();
+      if (!newRecognition) {
+        setError('Failed to create speech recognition');
+        return;
+      }
+      
+      recognitionRef.current = newRecognition;
       
       // Simple reset
       setTranscript('');
@@ -173,26 +150,27 @@ const useVoiceRecording = () => {
       
       try {
         recognitionRef.current.start();
-        console.log('🎤 Recognition started successfully');
+        console.log('🎤 Fresh recognition started successfully');
       } catch (err) {
         console.error('Error starting recognition:', err);
         setError('Failed to start voice recording');
         setIsRecording(false);
       }
     }
-  }, [isSupported, isRecording]);
+  }, [isSupported, isRecording, createRecognition]);
 
   const stopRecording = useCallback(() => {
-    console.log('🎤 Stop recording called, current state:', { isRecording, isListening });
+    console.log('🎤 Stop recording called');
     
     if (recognitionRef.current) {
       try {
-        // Force stop regardless of state
         recognitionRef.current.stop();
         console.log('🎤 Recognition.stop() called');
       } catch (err) {
         console.error('🎤 Error stopping recognition:', err);
       }
+      // Clear the reference to the old instance
+      recognitionRef.current = null;
     }
     
     // Clear states
@@ -205,8 +183,8 @@ const useVoiceRecording = () => {
       timeoutRef.current = null;
     }
     
-    console.log('🎤 Recording stopped, states cleared');
-  }, [isRecording, isListening]);
+    console.log('🎤 Recording stopped, instance cleared');
+  }, []);
 
   const clearTranscript = useCallback(() => {
     setTranscript('');
