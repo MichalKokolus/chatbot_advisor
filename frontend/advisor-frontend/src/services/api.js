@@ -52,7 +52,12 @@ export const sendMessage = async (message, sessionId = null) => {
       session_id: sessionId,
     });
     
-    return response.data;
+    // Convert snake_case to camelCase for frontend
+    const data = response.data;
+    return {
+      response: data.response,
+      sessionId: data.session_id, // Convert snake_case to camelCase
+    };
   } catch (error) {
     console.error('Error sending message:', error);
     throw new Error(
