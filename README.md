@@ -43,13 +43,13 @@ An AI-powered psychological advisor that provides empathetic support and practic
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone <https://github.com/MichalKokolus/chatbot_advisor.git>
    cd chatbot_advisor
    ```
 
 2. **Set up environment variables**
    ```bash
-   # Create .env file in the root directory with your Gemini API key
+   # Create .env file in the backend directory with your Gemini API key
    echo "API_KEY=your_gemini_api_key_here" > .env
    ```
 
@@ -63,7 +63,7 @@ An AI-powered psychological advisor that provides empathetic support and practic
    - Backend API: http://localhost:8000
    - API Documentation: http://localhost:8000/docs
 
-**Note:** Voice features work best in Chrome or Edge browsers.
+**Note:** Voice features are tested in Chrome browser.
 
 ### Option 2: Local Development
 
@@ -137,7 +137,7 @@ An AI-powered psychological advisor that provides empathetic support and practic
 
 ### Environment Variables
 
-Create a `.env` file in the root directory (for Docker) or backend directory (for local development):
+Create a `.env` file in the backend directory:
 
 ```env
 # Required: Gemini API Key
@@ -192,12 +192,12 @@ docker-compose logs backend
 
 **API key issues:**
 - Verify your Gemini API key is valid
-- Ensure the .env file is in the correct location (root for Docker, backend for local)
+- Ensure the .env file is in the correct location (backend)
 - Check environment variable is loaded properly
 
 ### Browser Compatibility
 
-- **Voice Features**: **Chrome, Edge recommended** (optimized and tested)
+- **Voice Features**: **Chrome recommended**
 - **General Chat**: All modern browsers
 - **HTTPS Required**: For voice features in production deployment
 
@@ -219,14 +219,6 @@ This is a demonstration project showcasing AI integration, modern web developmen
 ## ⚠️ Disclaimer
 
 This application is a **demonstration/proof-of-concept MVP only**. It is not intended to replace professional psychological treatment or therapy. For mental health crises, please contact:
-
-- **Emergency Services**: 911 (US)
-- **Crisis Text Line**: Text HOME to 741741
-- **National Suicide Prevention Lifeline**: 988
-
-## 📄 License
-
-This project is for demonstration purposes. Please ensure compliance with relevant regulations when deploying AI-powered health-related applications.
 
 ---
 
