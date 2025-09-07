@@ -1,14 +1,14 @@
-# Psychological Advisor Chatbot
+# Psychological Advisor Chatbot MVP
 
-An AI-powered psychological advisor that provides emotional support and guidance through text and voice interactions. Built with FastAPI backend using Gemini LLM and React frontend with modern UI and voice recording capabilities.
+An AI-powered psychological advisor that provides empathetic support and practical wellness guidance through text and voice interactions. Built with FastAPI backend using Google's Gemini LLM and React frontend with voice recording capabilities.
 
 ## ✨ Features
 
-- 🤖 **AI-Powered Support**: Uses Google's Gemini LLM for empathetic psychological guidance
-- 🎤 **Voice Integration**: Speech-to-text for hands-free interaction
-- 🛡️ **Safety Guardrails**: NeMo Guardrails ensures safe and appropriate responses
+- 🤖 **AI-Powered Support**: Uses Google's Gemini LLM for empathetic psychological guidance with actionable wellness recommendations
+- 🎤 **Voice Chat**: Full voice interaction with speech-to-text input and text-to-speech responses
+- 🛡️ **Enhanced Safety**: Built-in safety filtering for crisis intervention and appropriate responses
 - 💬 **Session Memory**: Maintains conversation context throughout the session
-- 🎨 **Modern UI**: Beautiful, responsive interface with Tailwind CSS
+- 🎨 **Modern UI**: Clean, responsive interface with Tailwind CSS
 - 🐳 **Docker Ready**: Complete containerization for easy deployment
 - 🔒 **Privacy Focused**: No database - conversations are session-based only
 
@@ -18,13 +18,13 @@ An AI-powered psychological advisor that provides emotional support and guidance
 ├── backend/                 # FastAPI backend
 │   ├── src/
 │   │   ├── api/            # API routes
-│   │   ├── utils/          # LLM handler, session manager, guardrails
+│   │   ├── utils/          # LLM handler, session manager, safety filtering
 │   │   └── app.py          # Main FastAPI application
 │   └── Dockerfile.api      # Backend container
 ├── frontend/advisor-frontend/  # React frontend
 │   ├── src/
 │   │   ├── components/     # UI components
-│   │   ├── hooks/          # Voice recording hook
+│   │   ├── hooks/          # Voice recording and TTS hooks
 │   │   ├── services/       # API communication
 │   │   └── App.js          # Main React app
 │   └── Dockerfile.frontend # Frontend container
@@ -49,11 +49,11 @@ An AI-powered psychological advisor that provides emotional support and guidance
 
 2. **Set up environment variables**
    ```bash
-   # Create .env file with your Gemini API key
+   # Create .env file in the root directory with your Gemini API key
    echo "API_KEY=your_gemini_api_key_here" > .env
    ```
 
-3. **Run with Docker Compose**
+3. **Build and run with Docker Compose**
    ```bash
    docker-compose up --build
    ```
@@ -62,6 +62,8 @@ An AI-powered psychological advisor that provides emotional support and guidance
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8000
    - API Documentation: http://localhost:8000/docs
+
+**Note:** Voice features work best in Chrome or Edge browsers.
 
 ### Option 2: Local Development
 
@@ -79,7 +81,8 @@ An AI-powered psychological advisor that provides emotional support and guidance
 
 3. **Set environment variable**
    ```bash
-   export API_KEY=your_gemini_api_key_here
+   # Create .env file in backend directory
+   echo "API_KEY=your_gemini_api_key_here" > .env
    ```
 
 4. **Run the backend**
@@ -108,29 +111,33 @@ An AI-powered psychological advisor that provides emotional support and guidance
    - Frontend: http://localhost:3000
    - Backend will be proxied automatically
 
+**Note:** For best experience with voice features, use Chrome or Edge browsers.
+
 ## 🎯 Usage
 
 ### Text Chat
 1. Type your message in the text input area
 2. Press Enter or click the send button
-3. The AI advisor will respond with empathetic guidance
+3. The AI advisor will respond with empathetic guidance and practical recommendations
 
 ### Voice Chat
 1. Click the microphone button to start recording
 2. Speak your message clearly
-3. The system will automatically convert speech to text
-4. Review the text and send your message
+3. Click the microphone again to stop recording
+4. The message will be automatically sent and the response will be spoken aloud
+5. Use the speaker toggle in the header to enable/disable voice responses
 
 ### Safety Features
-- The system includes built-in safety guardrails
-- For crisis situations, it directs users to emergency services
-- All responses are filtered to ensure appropriate psychological support
+- Built-in safety filtering for crisis intervention
+- Automatic redirection to emergency services for serious concerns
+- Enhanced wellness recommendations including mindfulness, exercise, and self-care tips
+- All responses focused on psychological support and emotional wellbeing
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory (for Docker) or backend directory (for local development):
 
 ```env
 # Required: Gemini API Key
@@ -144,24 +151,25 @@ REACT_APP_API_URL=http://localhost:8000/api/v1
 
 The backend uses the following key components:
 
-- **LLM Handler**: `src/utils/llm_handler.py` - Manages Gemini LLM integration
+- **LLM Handler**: `src/utils/llm_handler.py` - Manages Gemini LLM integration with enhanced safety filtering
 - **Session Manager**: `src/utils/session_manager.py` - Handles conversation memory
-- **Guardrails**: `src/utils/guardrails_config.py` - Safety filters and constraints
+- **Safety Filtering**: Built-in crisis intervention and medical advice prevention
 - **API Routes**: `src/api/chat.py` - Chat endpoints and request handling
 
 ### Frontend Configuration
 
 - **API Service**: `src/services/api.js` - Backend communication
-- **Voice Hook**: `src/hooks/useVoiceRecording.js` - Speech recognition
+- **Voice Hooks**: `src/hooks/useVoiceRecording.js` and `src/hooks/useTextToSpeech.js` - Full voice interaction
 - **Components**: Modern React components with Tailwind CSS styling
 
 ## 🛡️ Safety & Privacy
 
 - **No Data Persistence**: Conversations are not stored in any database
 - **Session-Based Memory**: Context is maintained only during active sessions
-- **Safety Guardrails**: AI responses are filtered for harmful content
+- **Enhanced Safety Filtering**: AI responses are filtered for harmful content with crisis intervention
 - **Crisis Support**: Automatic redirection to emergency services when needed
 - **Privacy First**: No user data collection or tracking
+- **Wellness Focus**: Responses include actionable recommendations for mental health and wellbeing
 
 ## 🐛 Troubleshooting
 
@@ -177,20 +185,21 @@ docker-compose logs backend
 ```
 
 **Voice recording not working:**
-- Ensure microphone permissions are granted
+- Ensure microphone permissions are granted in browser
+- **Use Chrome or Edge browsers** (voice features are optimized for these)
+- Check microphone volume in Windows settings if levels are low
 - Use HTTPS in production (required for Web Speech API)
-- Check browser compatibility (Chrome/Edge recommended)
 
 **API key issues:**
 - Verify your Gemini API key is valid
-- Ensure the .env file is properly formatted
-- Check environment variable is loaded: `echo $API_KEY`
+- Ensure the .env file is in the correct location (root for Docker, backend for local)
+- Check environment variable is loaded properly
 
 ### Browser Compatibility
 
-- **Voice Features**: Chrome, Edge (WebKit-based browsers)
+- **Voice Features**: **Chrome, Edge recommended** (optimized and tested)
 - **General Chat**: All modern browsers
-- **HTTPS Required**: For voice features in production
+- **HTTPS Required**: For voice features in production deployment
 
 ## 📝 API Documentation
 
@@ -209,7 +218,7 @@ This is a demonstration project showcasing AI integration, modern web developmen
 
 ## ⚠️ Disclaimer
 
-This application is a demonstration/proof-of-concept only. It is not intended to replace professional psychological treatment or therapy. For mental health crises, please contact:
+This application is a **demonstration/proof-of-concept MVP only**. It is not intended to replace professional psychological treatment or therapy. For mental health crises, please contact:
 
 - **Emergency Services**: 911 (US)
 - **Crisis Text Line**: Text HOME to 741741
@@ -221,4 +230,4 @@ This project is for demonstration purposes. Please ensure compliance with releva
 
 ---
 
-**Built with**: FastAPI, React, Gemini LLM, NeMo Guardrails, LangChain, Tailwind CSS, Docker
+**Built with**: FastAPI, React, Google Gemini LLM, Tailwind CSS, Docker, Web Speech API
