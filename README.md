@@ -37,19 +37,19 @@ An AI-powered psychological advisor that provides empathetic support and practic
 
 - **Docker & Docker Compose** (recommended) OR
 - **Python 3.12+** and **Node.js 18+** for local development
-- **Google Gemini API key** ([Get one here](https://makersuite.google.com/app/apikey))
+- **Google Gemini API key** ([Get one here](https://aistudio.google.com/apikey))
 
 ### Option 1: Docker Deployment (Recommended)
 
 1. **Clone the repository**
    ```bash
-   git clone <https://github.com/MichalKokolus/chatbot_advisor.git>
+   git clone (https://github.com/MichalKokolus/chatbot_advisor.git)
    cd chatbot_advisor
    ```
 
 2. **Set up environment variables**
    ```bash
-   # Create .env file in the backend directory with your Gemini API key
+   # Create .env file in the root directory with your Gemini API key
    echo "API_KEY=your_gemini_api_key_here" > .env
    ```
 
