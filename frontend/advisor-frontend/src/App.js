@@ -86,13 +86,13 @@ function App() {
       setMessages(prev => [...prev, assistantMessage]);
       setIsConnected(true);
       
-      // Temporarily disable auto-speech to test voice recording
-      // TODO: Re-enable once voice recording works reliably
-      // if (speechEnabled && ttsSupported && response.response) {
-      //   setTimeout(() => {
-      //     speak(response.response);
-      //   }, 300);
-      // }
+      // Speak the assistant's response if speech is enabled
+      if (speechEnabled && ttsSupported && response.response) {
+        // Small delay to let the message appear first
+        setTimeout(() => {
+          speak(response.response);
+        }, 300);
+      }
     } catch (err) {
       console.error('Error sending message:', err);
       setError(err.message || 'Failed to send message. Please try again.');
