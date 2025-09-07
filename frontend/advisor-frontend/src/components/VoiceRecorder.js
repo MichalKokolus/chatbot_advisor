@@ -3,7 +3,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { Mic, MicOff, Volume2 } from 'lucide-react';
+import { Mic, MicOff, Volume2, TestTube } from 'lucide-react';
 import useVoiceRecording from '../hooks/useVoiceRecording';
 
 const VoiceRecorder = ({ onTranscript, disabled }) => {
@@ -17,27 +17,39 @@ const VoiceRecorder = ({ onTranscript, disabled }) => {
     stopRecording,
     clearTranscript,
     requestPermission,
+    testMicrophone,
   } = useVoiceRecording();
 
-  // Send transcript to parent when recording stops
+  // Send transcript to parent when recording stops (with debouncing)
   useEffect(() => {
-    if (!isRecording && transcript.trim() && onTranscript) {
-      onTranscript(transcript.trim());
-      clearTranscript();
+    if (!isRecording && !isListening && transcript.trim() && onTranscript) {
+      console.log('🎤 Recording fully stopped, sending voice transcript:', transcript.trim());
+      
+      // Store the transcript and clear it immediately to prevent re-processing
+      const finalTranscript = transcript.trim();
+      clearTranscript(); // Clear immediately
+      
+      // Send to parent with a small delay to ensure state is clean
+      setTimeout(() => {
+        onTranscript(finalTranscript);
+      }, 100);
     }
-  }, [isRecording, transcript, onTranscript, clearTranscript]);
+  }, [isRecording, isListening, transcript, onTranscript, clearTranscript]);
 
   const handleToggleRecording = async () => {
     if (!isSupported) {
       return;
     }
 
-    if (!isRecording) {
-      const hasPermission = await requestPermission();
-      if (hasPermission) {
-        startRecording();
-      }
+    console.log('🎤 Simple toggle clicked, current states:', { isRecording, isListening });
+
+    if (!isRecording && !isListening) {
+      // Start recording - SIMPLE approach
+      console.log('🎤 Starting recording...');
+      startRecording();
     } else {
+      // Stop recording
+      console.log('🎤 Stopping recording...');
       stopRecording();
     }
   };
@@ -53,20 +65,20 @@ const VoiceRecorder = ({ onTranscript, disabled }) => {
     );
   }
 
-  return (
-    <div className="voice-recorder">
-      {/* Voice Recording Button */}
-      <button
+      return (
+      <div className="voice-recorder flex items-center space-x-2">
+        {/* Voice Recording Button */}
+        <button
         onClick={handleToggleRecording}
         disabled={disabled}
         className={`relative w-12 h-12 rounded-full border-2 transition-all duration-200 ${
-          isRecording
+          (isRecording || isListening)
             ? 'bg-red-500 border-red-600 text-white animate-pulse'
             : disabled
             ? 'bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed'
             : 'bg-primary-500 border-primary-600 text-white hover:bg-primary-600 active:scale-95'
         }`}
-        title={isRecording ? 'Stop recording' : 'Start voice recording'}
+        title={(isRecording || isListening) ? 'Stop recording' : 'Start voice recording'}
       >
         {isRecording ? (
           <MicOff className="w-5 h-5 mx-auto" />
@@ -75,9 +87,19 @@ const VoiceRecorder = ({ onTranscript, disabled }) => {
         )}
         
         {/* Recording indicator pulse */}
-        {isRecording && (
+        {(isRecording || isListening) && (
           <div className="absolute inset-0 rounded-full border-2 border-red-300 animate-ping" />
         )}
+      </button>
+
+      {/* Microphone Test Button */}
+      <button
+        onClick={testMicrophone}
+        disabled={disabled || isRecording}
+        className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all duration-200 disabled:opacity-50"
+        title="Test microphone levels"
+      >
+        <TestTube className="w-4 h-4 mx-auto" />
       </button>
 
       {/* Status indicator */}

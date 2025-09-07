@@ -3,10 +3,11 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Heart, Shield, MessageCircle, AlertTriangle, Wifi, WifiOff } from 'lucide-react';
+import { Heart, Shield, MessageCircle, AlertTriangle, Wifi, WifiOff, Volume2, VolumeX } from 'lucide-react';
 import ChatMessage from './components/ChatMessage';
 import ChatInput from './components/ChatInput';
 import { sendMessage, healthCheck } from './services/api';
+import useTextToSpeech from './hooks/useTextToSpeech';
 import './App.css';
 
 function App() {
@@ -15,7 +16,11 @@ function App() {
   const [sessionId, setSessionId] = useState(null);
   const [error, setError] = useState(null);
   const [isConnected, setIsConnected] = useState(true);
+  const [speechEnabled, setSpeechEnabled] = useState(true);
   const messagesEndRef = useRef(null);
+  
+  // Text-to-speech hook
+  const { speak, stop, isSpeaking, isSupported: ttsSupported } = useTextToSpeech();
 
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
@@ -80,6 +85,14 @@ function App() {
 
       setMessages(prev => [...prev, assistantMessage]);
       setIsConnected(true);
+      
+      // Temporarily disable auto-speech to test voice recording
+      // TODO: Re-enable once voice recording works reliably
+      // if (speechEnabled && ttsSupported && response.response) {
+      //   setTimeout(() => {
+      //     speak(response.response);
+      //   }, 300);
+      // }
     } catch (err) {
       console.error('Error sending message:', err);
       setError(err.message || 'Failed to send message. Please try again.');
@@ -109,19 +122,45 @@ function App() {
               </div>
             </div>
             
-            {/* Connection status */}
-            <div className="flex items-center space-x-2">
-              {isConnected ? (
-                <div className="flex items-center text-green-600">
-                  <Wifi className="w-4 h-4 mr-1" />
-                  <span className="text-sm">Connected</span>
-                </div>
-              ) : (
-                <div className="flex items-center text-red-600">
-                  <WifiOff className="w-4 h-4 mr-1" />
-                  <span className="text-sm">Disconnected</span>
-                </div>
+            {/* Connection status and controls */}
+            <div className="flex items-center space-x-4">
+              {/* Speech toggle */}
+              {ttsSupported && (
+                <button
+                  onClick={() => {
+                    if (isSpeaking) {
+                      stop();
+                    }
+                    setSpeechEnabled(!speechEnabled);
+                  }}
+                  className={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${
+                    speechEnabled 
+                      ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' 
+                      : 'text-gray-500 bg-gray-100 hover:bg-gray-200'
+                  }`}
+                  title={speechEnabled ? 'Speech enabled - Click to disable' : 'Speech disabled - Click to enable'}
+                >
+                  {speechEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                  <span className="text-xs">
+                    {isSpeaking ? 'Speaking...' : speechEnabled ? 'Speech On' : 'Speech Off'}
+                  </span>
+                </button>
               )}
+              
+              {/* Connection status */}
+              <div className="flex items-center space-x-2">
+                {isConnected ? (
+                  <div className="flex items-center text-green-600">
+                    <Wifi className="w-4 h-4 mr-1" />
+                    <span className="text-sm">Connected</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center text-red-600">
+                    <WifiOff className="w-4 h-4 mr-1" />
+                    <span className="text-sm">Disconnected</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ import VoiceRecorder from './VoiceRecorder';
 
 const ChatInput = ({ onSendMessage, isLoading, disabled }) => {
   const [message, setMessage] = useState('');
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
   const textareaRef = useRef(null);
 
   // Auto-resize textarea
@@ -36,13 +37,32 @@ const ChatInput = ({ onSendMessage, isLoading, disabled }) => {
   };
 
   const handleVoiceTranscript = (transcript) => {
-    if (transcript) {
+    if (isProcessingVoice) {
+      console.log('📝 Already processing voice, ignoring duplicate:', transcript);
+      return;
+    }
+
+    if (transcript && transcript.trim().length > 2) { // Only process meaningful transcripts
+      console.log('📝 Voice transcript received:', transcript);
+      setIsProcessingVoice(true);
       setMessage(transcript);
-      // Auto-send voice messages or let user review first
-      // For better UX, let's set the text and let user decide
-      textareaRef.current?.focus();
+      
+      // Auto-send voice messages for seamless experience
+      setTimeout(() => {
+        if (transcript.trim() && !isLoading && !disabled) {
+          console.log('🚀 Auto-sending voice message');
+          onSendMessage(transcript.trim());
+          setMessage('');
+        }
+        // Reset processing flag after send
+        setIsProcessingVoice(false);
+      }, 500); // Small delay to show the message in input first
+    } else {
+      console.log('📝 Voice transcript too short, ignoring:', transcript);
+      setIsProcessingVoice(false);
     }
   };
+
 
   const handleNewConversation = () => {
     if (window.confirm('Start a new conversation? This will clear the current chat.')) {
@@ -80,7 +100,7 @@ const ChatInput = ({ onSendMessage, isLoading, disabled }) => {
         {/* Voice recorder */}
         <VoiceRecorder 
           onTranscript={handleVoiceTranscript}
-          disabled={disabled || isLoading}
+          disabled={disabled || isLoading || isProcessingVoice}
         />
 
         {/* Send button */}
